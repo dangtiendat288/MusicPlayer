@@ -50,6 +50,7 @@ class FirebaseMusicSource @Inject constructor (
     fun asMediaItems() = songs.map{song ->
         val desc = MediaDescriptionCompat.Builder()
             .setMediaUri(song.getString(METADATA_KEY_MEDIA_URI).toUri())
+//            .setMediaUri(song.description.mediaUri)
             .setTitle(song.description.title)
             .setMediaId(song.description.mediaId)
             .setIconUri(song.description.iconUri)

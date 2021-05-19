@@ -2,6 +2,7 @@ package com.example.musicplayer.ui.viewmodels
 
 import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.MediaMetadataCompat.METADATA_KEY_MEDIA_ID
+import android.util.Log
 import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -27,7 +28,7 @@ class MainViewModel @ViewModelInject constructor(
 
     init {
         _mediaItems.postValue(Resource.loading(null))
-        musicServiceConnection.subcribe(MEDIA_ROOT_ID,
+        musicServiceConnection.subscribe(MEDIA_ROOT_ID,
             object : MediaBrowserCompat.SubscriptionCallback() {
                 override fun onChildrenLoaded(
                     parentId: String,
@@ -77,6 +78,6 @@ class MainViewModel @ViewModelInject constructor(
 
     override fun onCleared() {
         super.onCleared()
-        musicServiceConnection.unsubcribe(MEDIA_ROOT_ID,object :MediaBrowserCompat.SubscriptionCallback(){})
+        musicServiceConnection.unsubscribe(MEDIA_ROOT_ID,object :MediaBrowserCompat.SubscriptionCallback(){})
     }
 }

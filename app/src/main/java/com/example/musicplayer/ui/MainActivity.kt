@@ -2,15 +2,20 @@ package com.example.musicplayer.ui
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.support.v4.media.session.PlaybackStateCompat
 import androidx.activity.viewModels
+import androidx.viewpager2.widget.ViewPager2
 import com.bumptech.glide.RequestManager
 import com.example.musicplayer.R
 import com.example.musicplayer.adapters.SwipeSongAdapter
 import com.example.musicplayer.data.entities.Song
+import com.example.musicplayer.exoplayer.isPlayEnable
+import com.example.musicplayer.exoplayer.isPlaying
 import com.example.musicplayer.exoplayer.toSong
 import com.example.musicplayer.other.Status
 import com.example.musicplayer.other.Status.*
 import com.example.musicplayer.ui.viewmodels.MainViewModel
+import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.activity_main.*
 import javax.inject.Inject
@@ -28,12 +33,32 @@ class MainActivity : AppCompatActivity() {
 
     private var curPlayingSong: Song? = null
 
+    private var playbackState: PlaybackStateCompat? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         subscribeToObservers()
 
         vpSong.adapter = swipeSongAdapter
+
+        ivPlayPause.setOnClickListener{
+            curPlayingSong?.let{
+                mainViewModel.playOrToggleSong(it,true)
+            }
+        }
+
+        vpSong.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback(){
+            override fun onPageSelected(position: Int) {
+                super.onPageSelected(position)
+                if(playbackState?.isPlaying == true){
+                    mainViewModel.playOrToggleSong(swipeSongAdapter.songs[position])
+                } else {
+                    curPlayingSong = swipeSongAdapter.songs[position]
+                    glide.load(curPlayingSong?.imageUrl).into(ivCurSongImage)
+                }
+            }
+        })
     }
 
     private fun switchViewPagerToCurrentSong(song: Song) {
@@ -51,8 +76,9 @@ class MainActivity : AppCompatActivity() {
                     SUCCESS -> {
                         result.data?.let { songs ->
                             swipeSongAdapter.songs = songs
-                            if(songs.isNotEmpty()){
-                                glide.load((curPlayingSong ?: songs[0]).imageUrl).into(ivCurSongImage)
+                            if (songs.isNotEmpty()) {
+                                glide.load((curPlayingSong ?: songs[0]).imageUrl)
+                                    .into(ivCurSongImage)
                             }
                             switchViewPagerToCurrentSong(curPlayingSong ?: return@observe)
                         }
@@ -64,12 +90,46 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        mainViewModel.curPlayingSong.observe(this){
-            if(it==null) return@observe
+        mainViewModel.curPlayingSong.observe(this) {
+            if (it == null) return@observe
 
             curPlayingSong = it.toSong()
             glide.load(curPlayingSong?.imageUrl).into(ivCurSongImage)
             switchViewPagerToCurrentSong(curPlayingSong ?: return@observe)
         }
+
+        mainViewModel.playbackState.observe(this) {
+            playbackState = it
+            ivPlayPause.setImageResource(
+                if (playbackState?.isPlaying == true) R.drawable.ic_pause else R.drawable.ic_play
+            )
+        }
+
+        mainViewModel.isConnected.observe(this) {
+            it?.getContentIfNotHandled()?.let { result ->
+                when (result.status) {
+                    ERROR -> Snackbar.make(
+                        rootLayout,
+                        result.message ?: "An unknown error occured",
+                        Snackbar.LENGTH_LONG
+                    ).show()
+                    else -> Unit
+                }
+            }
+        }
+
+        mainViewModel.networkError.observe(this) {
+            it?.getContentIfNotHandled()?.let { result ->
+                when (result.status) {
+                    ERROR -> Snackbar.make(
+                        rootLayout,
+                        result.message ?: "An unknown error occured",
+                        Snackbar.LENGTH_LONG
+                    ).show()
+                    else -> Unit
+                }
+            }
+        }
+
     }
 }

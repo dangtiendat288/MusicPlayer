@@ -9,10 +9,8 @@ import com.bumptech.glide.RequestManager
 import com.example.musicplayer.R
 import com.example.musicplayer.adapters.SwipeSongAdapter
 import com.example.musicplayer.data.entities.Song
-import com.example.musicplayer.exoplayer.isPlayEnable
 import com.example.musicplayer.exoplayer.isPlaying
 import com.example.musicplayer.exoplayer.toSong
-import com.example.musicplayer.other.Status
 import com.example.musicplayer.other.Status.*
 import com.example.musicplayer.ui.viewmodels.MainViewModel
 import com.google.android.material.snackbar.Snackbar

@@ -4,6 +4,8 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.support.v4.media.session.PlaybackStateCompat
 import androidx.activity.viewModels
+import androidx.core.view.isVisible
+import androidx.navigation.fragment.findNavController
 import androidx.viewpager2.widget.ViewPager2
 import com.bumptech.glide.RequestManager
 import com.example.musicplayer.R
@@ -40,16 +42,16 @@ class MainActivity : AppCompatActivity() {
 
         vpSong.adapter = swipeSongAdapter
 
-        ivPlayPause.setOnClickListener{
-            curPlayingSong?.let{
-                mainViewModel.playOrToggleSong(it,true)
+        ivPlayPause.setOnClickListener {
+            curPlayingSong?.let {
+                mainViewModel.playOrToggleSong(it, true)
             }
         }
 
-        vpSong.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback(){
+        vpSong.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
                 super.onPageSelected(position)
-                if(playbackState?.isPlaying == true){
+                if (playbackState?.isPlaying == true) {
                     mainViewModel.playOrToggleSong(swipeSongAdapter.songs[position])
                 } else {
                     curPlayingSong = swipeSongAdapter.songs[position]
@@ -57,6 +59,32 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         })
+
+        swipeSongAdapter.setItemClickListener {
+            navHostFragment.findNavController().navigate(
+                R.id.globalActionToSongFragment
+            )
+        }
+
+        navHostFragment.findNavController().addOnDestinationChangedListener{_,destination,_->
+            when(destination.id){
+                R.id.songFragment-> hideBottomBar()
+                R.id.homeFragment-> showBottomBar()
+                else -> showBottomBar()
+            }
+        }
+    }
+
+    private fun hideBottomBar() {
+        ivCurSongImage.isVisible = false
+        vpSong.isVisible = false
+        ivPlayPause.isVisible = false
+    }
+
+    private fun showBottomBar() {
+        ivCurSongImage.isVisible = true
+        vpSong.isVisible = true
+        ivPlayPause.isVisible = true
     }
 
     private fun switchViewPagerToCurrentSong(song: Song) {

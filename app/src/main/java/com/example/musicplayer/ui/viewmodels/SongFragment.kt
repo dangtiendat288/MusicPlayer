@@ -3,6 +3,7 @@ package com.example.musicplayer.ui.viewmodels
 import android.os.Bundle
 import android.support.v4.media.session.PlaybackStateCompat
 import android.view.View
+import android.widget.SeekBar
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
@@ -14,6 +15,8 @@ import com.example.musicplayer.exoplayer.toSong
 import com.example.musicplayer.other.Status.*
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.fragment_song.*
+import java.text.SimpleDateFormat
+import java.util.*
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -29,9 +32,15 @@ class SongFragment: Fragment(R.layout.fragment_song) {
 
     private var playbackState: PlaybackStateCompat? = null
 
+    private var shouldUpdateSeekbar = true
+
+    private lateinit var dateFormat : SimpleDateFormat
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         mainViewModel = ViewModelProvider(requireActivity()).get(MainViewModel::class.java)
+        dateFormat = SimpleDateFormat("mm:ss", Locale.getDefault())
+
         subscribeToObservers()
 
         ivPlayPauseDetail.setOnClickListener{
@@ -39,6 +48,25 @@ class SongFragment: Fragment(R.layout.fragment_song) {
                 mainViewModel.playOrToggleSong(it,true)
             }
         }
+
+        seekBar.setOnSeekBarChangeListener(object: SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                if(fromUser){
+                    setCurrentPlayerTimeToTextView(progress.toLong())
+                }
+            }
+
+            override fun onStartTrackingTouch(p0: SeekBar?) {
+                shouldUpdateSeekbar = false
+            }
+
+            override fun onStopTrackingTouch(seekbar: SeekBar?) {
+                seekBar?.let{
+                    mainViewModel.seekTo(it.progress.toLong())
+                    shouldUpdateSeekbar = true
+                }
+            }
+        })
 
         ivSkipPrevious.setOnClickListener{
             mainViewModel.skipToPreviousSong()
@@ -82,7 +110,23 @@ class SongFragment: Fragment(R.layout.fragment_song) {
             ivPlayPauseDetail.setImageResource(
                 if(playbackState?.isPlaying == true) R.drawable.ic_pause else R.drawable.ic_play
             )
-            
+            seekBar.progress = it?.position?.toInt() ?: 0
         }
+
+        songViewModel.curPlayerPosition.observe(viewLifecycleOwner){
+            if(shouldUpdateSeekbar){
+                seekBar.progress = it.toInt()
+                setCurrentPlayerTimeToTextView(it)
+            }
+        }
+
+        songViewModel.curSongDuration.observe(viewLifecycleOwner){
+            seekBar.max = it.toInt()
+            tvSongDuration.text = dateFormat.format(it)
+        }
+    }
+
+    private fun setCurrentPlayerTimeToTextView(ms: Long) {
+        tvCurTime.text = dateFormat.format(ms)
     }
 }

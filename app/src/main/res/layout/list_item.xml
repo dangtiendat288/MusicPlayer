@@ -30,7 +30,7 @@
         android:id="@+id/tvSecondary"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="100 Songs"
+        android:text="Top 100 Songs"
         android:textSize="14sp"
         android:layout_marginLeft="16dp"
         android:layout_marginRight="16dp"

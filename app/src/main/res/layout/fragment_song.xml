@@ -62,17 +62,25 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@+id/seekBar" />
 
-    <ImageView
-        android:id="@+id/ivPlayPauseDetail"
+    <FrameLayout
+        android:id="@+id/ivPlayPauseFrame"
         android:layout_width="75dp"
         android:layout_height="75dp"
         android:layout_marginTop="32dp"
         android:background="@drawable/circle_drawable"
-        android:src="@drawable/ic_play"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/seekBar" />
+        app:layout_constraintTop_toBottomOf="@+id/seekBar"
+        >
+        <ImageView
+            android:id="@+id/ivPlayPauseDetail"
+            android:src="@drawable/ic_pause"
+            android:layout_height="60dp"
+            android:layout_width="60dp"
+            android:layout_gravity="center"
+            />
+    </FrameLayout>
 
     <ImageView
         android:id="@+id/ivSkipPrevious"
@@ -80,9 +88,9 @@
         android:layout_height="56dp"
         android:layout_marginEnd="16dp"
         android:src="@drawable/ic_skip_previous"
-        app:layout_constraintBottom_toBottomOf="@+id/ivPlayPauseDetail"
-        app:layout_constraintEnd_toStartOf="@+id/ivPlayPauseDetail"
-        app:layout_constraintTop_toTopOf="@+id/ivPlayPauseDetail" />
+        app:layout_constraintBottom_toBottomOf="@+id/ivPlayPauseFrame"
+        app:layout_constraintEnd_toStartOf="@+id/ivPlayPauseFrame"
+        app:layout_constraintTop_toTopOf="@+id/ivPlayPauseFrame" />
 
     <ImageView
         android:id="@+id/ivSkip"
@@ -90,9 +98,9 @@
         android:layout_height="56dp"
         android:layout_marginStart="16dp"
         android:src="@drawable/ic_skip"
-        app:layout_constraintBottom_toBottomOf="@+id/ivPlayPauseDetail"
-        app:layout_constraintStart_toEndOf="@+id/ivPlayPauseDetail"
-        app:layout_constraintTop_toTopOf="@+id/ivPlayPauseDetail" />
+        app:layout_constraintBottom_toBottomOf="@+id/ivPlayPauseFrame"
+        app:layout_constraintStart_toEndOf="@+id/ivPlayPauseFrame"
+        app:layout_constraintTop_toTopOf="@+id/ivPlayPauseFrame" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline2"
